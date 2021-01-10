@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 import CreateNewPost from './CreateNewPost';
+import ModifyPost from './ModifyPost';
 import Post from './Post';
 
 
@@ -34,6 +35,23 @@ const DisplayAllPosts = () => {
         toggleModifyPostComponent();
     }
 
+    const updatePost = (event) => {
+        event.preventDefault();
+        const updatedPost = allPosts.map(eachPost => {
+            if (eachPost.id === editPostId) {
+                return {
+                    ...eachPost,
+                    title: title || eachPost.title,
+                    content: content || eachPost.content
+                }
+            }
+            return eachPost;
+        })
+        setAllPosts(updatePost);
+        toggleModifyPostComponent();
+
+    }
+
     const savePost = event => {
         event.preventDefault();
         const id = Date.now()
@@ -56,6 +74,20 @@ const DisplayAllPosts = () => {
                 />
             </>
         );
+    }
+    else if (isModifyPost) {
+        const post = allPosts.find(post => {
+            return post.id === editPostId;
+        });
+        return (
+            <ModifyPost
+                title={post.title}
+                content={post.content}
+                updatePost={updatePost}
+                savePostTitleToState={savePostTitleToState}
+                savePostContentToState={savePostContentToState}
+            />
+        )
     }
     return (
         <>
