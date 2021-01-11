@@ -1,19 +1,18 @@
-import React from 'react'
+import React from "react";
 
+const Post = ({ title, content, editPost, deletePost, id }) => {
+  console.log("Post Id: ", id);
 
-const Post = ({ title, content }) => {
-    return (
-        <>
-            <section>
-                <h3>{title} </h3>
-                <p>{content}</p>
-                <button>Edit</button>
-                <button>Delete</button>
+  return (
+    <>
+      <section>
+        <h3>{title} </h3>
+        <p>{content}</p>
+        <button onClick={() => editPost(id)}>Edit</button>
+        <button onClick={() => deletePost(id)}>Delete</button>
+      </section>
+    </>
+  );
+};
 
-            </section>
-        </>
-    )
-
-}
-
-export default Post
+export default Post;
