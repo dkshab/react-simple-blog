@@ -1,26 +1,21 @@
-import React, { useRef, useState } from "react";
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+
+import * as ROUTES from "../constants/routes";
+
+import { firestore } from "../utilities/firebase";
+import { collectIdsAndDocs } from "../utilities/helper-functions";
 import CreateNewPost from "./CreateNewPost";
 import ModifyPost from "./ModifyPost";
 import Post from "./Post";
+import PostTile from "./PostTile";
 
 const DisplayAllPosts = () => {
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
   const [allPosts, setAllPosts] = useState([]);
   const [isCreateNewPost, setIsCreateNewPost] = useState(false);
   const [isModifyPost, setIsModifyPost] = useState(false);
   const [editPostId, setEditPostId] = useState("");
 
-  // Initialize useRef
-  const getTitle = useRef();
-  const getContent = useRef();
-
-  const savePostTitleToState = (event) => {
-    setTitle(event.target.value);
-  };
-  const savePostContentToState = (event) => {
-    setContent(event.target.value);
-  };
   const toggleCreateNewPost = () => {
     setIsCreateNewPost(!isCreateNewPost);
   };
@@ -38,61 +33,43 @@ const DisplayAllPosts = () => {
     });
     setAllPosts(modifiedPost);
   };
-  const updatePost = (event) => {
-    event.preventDefault();
-    const updatedPost = allPosts.map((eachPost) => {
-      if (eachPost.id === editPostId) {
-        console.log([eachPost.id, editPostId]);
-        return {
-          ...eachPost,
-          title: title || eachPost.title,
-          content: content || eachPost.content,
-        };
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      const snapshot = await firestore
+        .collection("posts")
+        .orderBy("createdAt", "desc")
+        .limit(4)
+        .get();
+
+      const allPosts = snapshot.docs.map(collectIdsAndDocs);
+
+      if (allPosts) {
+        setAllPosts(allPosts);
+        // console.log(allPosts);
       }
-      console.log(eachPost);
-      return eachPost;
-    });
-    setAllPosts(updatedPost);
-    toggleModifyPostComponent();
-  };
-  const savePost = (event) => {
-    event.preventDefault();
-    const id = Date.now();
-    setAllPosts([...allPosts, { title, content, id }]);
-    console.log(allPosts);
-    setTitle("");
-    setContent("");
-    getTitle.current.value = "";
-    getContent.current.value = "";
-    toggleCreateNewPost();
-  };
+    };
+
+    const timer = setTimeout(() => {
+      fetchPosts();
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   if (isCreateNewPost) {
     return (
       <>
-        <CreateNewPost
-          savePostTitleToState={savePostTitleToState}
-          savePostContentToState={savePostContentToState}
-          getTitle={getTitle}
-          getContent={getContent}
-          savePost={savePost}
-          deletePost={deletePost}
-        />
+        <CreateNewPost deletePost={deletePost} />
       </>
     );
   } else if (isModifyPost) {
     const post = allPosts.find((post) => {
       return post.id === editPostId;
     });
-    return (
-      <ModifyPost
-        title={post.title}
-        content={post.content}
-        updatePost={updatePost}
-        savePostTitleToState={savePostTitleToState}
-        savePostContentToState={savePostContentToState}
-      />
-    );
+    return <ModifyPost title={post.title} content={post.content} />;
   }
+
   return (
     <>
       {!allPosts.length ? (
@@ -113,20 +90,18 @@ const DisplayAllPosts = () => {
           <section className="all-post">
             {allPosts.map((eachPost) => {
               return (
-                <Post
+                <PostTile
                   id={eachPost.id}
                   key={eachPost.id}
                   title={eachPost.title}
                   content={eachPost.content}
-                  editPost={editPost}
-                  deletePost={deletePost}
                 />
               );
             })}
             <section className="button-wrapper">
-              <button onClick={toggleCreateNewPost} className="button">
+              <Link to={ROUTES.ADDPOST} className="button create-new">
                 Create New
-              </button>
+              </Link>
             </section>
           </section>
         </div>
@@ -135,3 +110,16 @@ const DisplayAllPosts = () => {
   );
 };
 export default DisplayAllPosts;
+
+{
+  /* <Post
+                  id={eachPost.id}
+                  key={eachPost.id}
+                  title={eachPost.title}
+                  content={eachPost.content}
+                  comments={eachPost.comments}
+                  stars={eachPost.favorites}
+                  createdAt={eachPost.createdAt}
+                  user={eachPost.us}
+                /> */
+}

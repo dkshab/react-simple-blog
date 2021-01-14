@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { useHistory } from "react-router-dom";
+import { useCurrentUserValue } from "../context";
 
 import { firestore } from "../utilities/firebase";
 
@@ -8,8 +10,10 @@ const initialState = {
   error: null,
 };
 
-const CreateNewPost = (props) => {
+const CreateNewPost = () => {
   const [state, setState] = useState(initialState);
+  const history = useHistory();
+  const currentUser = useCurrentUserValue();
 
   const handleChange = (event) => {
     setState({ ...state, [event.target.name]: event.target.value });
@@ -19,25 +23,38 @@ const CreateNewPost = (props) => {
     event.preventDefault();
     const { title, content } = state;
 
-    const post = {
-      title,
-      content,
-      createdAt: new Date(),
-    };
-
-    if (!title || !content) {
-      console.log("empty content!");
+    if (!title || !content || !currentUser) {
+      console.log("empty content! or not logged in");
     } else {
+      const tempCurrentUser = currentUser.currentUser;
+      const { uid, displayName, email, photoURL } = tempCurrentUser || {};
+
+      const post = {
+        title,
+        content,
+        createdAt: new Date(),
+        user: {
+          uid,
+          displayName,
+          email,
+          photoURL,
+        },
+        favorites: 0,
+        comments: 0,
+      };
+
       await firestore
         .collection("posts")
         .add(post)
+        .then(() => {
+          clear();
+          history.push("/");
+        })
         .catch((error) => {
           setState({ ...state, error: error });
           console.error(error);
         });
     }
-
-    clear();
   };
 
   const clear = () => {

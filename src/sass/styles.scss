@@ -1,0 +1,117 @@
+$input-color: #7dbbc3;
+$button-color: #f4b9b2;
+$info-color: #daedbd;
+$comment-highlight-color: #de6b48;
+$danger-color: #de6b48;
+
+@mixin button($color) {
+  background-color: $color;
+  border: 1px solid darken($color, 10);
+  &:hover {
+    background-color: lighten($color, 10);
+  }
+  &:active {
+    background-color: lighten($color, 20);
+  }
+}
+
+html,
+*,
+*:before,
+*:after {
+  box-sizing: border-box;
+  color: #2d3436;
+}
+
+html,
+body,
+input {
+  font: menu;
+}
+
+input,
+button {
+  display: block;
+  width: 100%;
+  &:not(:last-child) {
+    margin-bottom: 5px;
+  }
+  &:focus {
+    outline: none;
+  }
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+  border: none;
+  border-bottom: 1px solid $input-color;
+  font-size: 1.5em;
+  padding: 0.5em;
+}
+
+button,
+input[type="submit"],
+.button {
+  display: block;
+  width: 100%;
+  font-size: 1.1em;
+  padding: 0.5em;
+  @include button($button-color);
+  &.star,
+  &.create,
+  &.update {
+    @include button($input-color);
+  }
+  &.delete {
+    @include button($danger-color);
+  }
+}
+
+.Application {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+%authentication {
+  border: 1px solid $input-color;
+  padding: 1em;
+  margin-bottom: 1em;
+  h2 {
+    margin: 0.5em 0.5em;
+    padding: 0.5em;
+    border-left: 5px solid $info-color;
+  }
+}
+
+.NavBar {
+  display: flex;
+  justify-content: space-between;
+
+  ul {
+    display: flex;
+    li {
+      list-style-type: none;
+      padding: 0 0.5rem;
+    }
+  }
+}
+
+.create-new {
+  text-align: center;
+}
+
+.sign-out {
+  background-color: $danger-color;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  &:hover {
+    cursor: pointer;
+    color: wheat;
+  }
+}
+
+.Post {
+  border: 1px solid $input-color;
+  margin-bottom: 1em;
+}
